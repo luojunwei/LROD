@@ -81,5 +81,5 @@ FLRO
     
     One example in the result file is shown below.
     36423,1,0,5326,9923,9923,1,4364,10479
-    It means the region [5326,9923] in the first read is overlapped with the region [1,4364] in the second read.
+    It means the region [5326,9923] in the first read is forward overlapped with the region [1,4364] in the second read.
 ```
