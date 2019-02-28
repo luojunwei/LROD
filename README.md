@@ -1,5 +1,5 @@
-# SLR
-SLR is a scaffolding tool based on long reads and contig classification.
+# FLRO
+FLRO can detect overlap regions among long reads.
 =========
 License
 =========
