@@ -69,7 +69,7 @@ FLRO
 5) Output.
 ```
     The output file "output-file-name" is the overlap result.
-     The first column is the first read number.
+    The first column is the first read number.
     The second column is the second read number.
     The third column is aligning orientation. 0 represents forward aligning. 1 represents reverse aligning.
     The fourth column is starting position in the first read.
