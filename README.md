@@ -50,7 +50,20 @@ FLRO
 ```
     Step 1: Use DSK to crete the kmer frequency file.
     Step 2: FLRO <long-read-file> <kmer-frequency-file> <kmer-length> <step> <low-kmer-frequency> <high-kmer-frequency> <output-file-name> <thread-number>
-    Example:
+    Note:
+    	Each line in the kmer-frequency-file should be "kmer kmer-frequency". 
+	For example:
+	AGTCCAGGCCGGG 3
+	GAAATCCAGCCGC 6
+	AACCGGCGAATCG 3
+	TATTTTAACATTC 2
+	TATGGCCGATGAA 4
+	AAAGCCGAAGCCT 3
+	CATCTTCACATCA 2
+	ATAAGTGATAGCT 4
+	TCGGCCATATTAC 4
+	ATTATTGCAATAC 6
+	An example of command line is shown below.
 	FLRO sra.fasta kmer 13 1 2 100 result.fa 10
 ```
 5) Output.
