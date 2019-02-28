@@ -148,7 +148,7 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, char * file,int kmerLeng
 	long int kmerCount = 0;
 	long int length = 0;
 	int frequency = 0;
-	long int averragefrequency=0;
+
 	long int allKmerFrequency = 0;
 	while((fgets(line, maxSize, fp)) != NULL){
 		length = strlen(line);
@@ -166,7 +166,7 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, char * file,int kmerLeng
 	kmerHashTableHead->allocationCount = kmerCount*1.5;
 	kmerHashTableHead->kmerHashNode = (KmerHashNode *)malloc(sizeof(KmerHashNode)*kmerHashTableHead->allocationCount);
 	
-	for(long int i = 0; i < kmerHashTableHead->allocationCount; i++){
+	for(unsigned long int i = 0; i < kmerHashTableHead->allocationCount; i++){
 		kmerHashTableHead->kmerHashNode[i].kmer = 0;
 		kmerHashTableHead->kmerHashNode[i].startPositionInArray = 0;
 	}
@@ -225,7 +225,7 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, char * file,int kmerLeng
 	long int readLength = 0;
 	char str[Size];
 	char * kmer1 = (char *)malloc(sizeof(char)*(kmerLength + 1));
-	char * kmer2 = (char *)malloc(sizeof(char)*(kmerLength + 1));
+
 	while(!feof(fp)){
 		fgets(str, Size, fp);
 		if(str[0]=='>'){
