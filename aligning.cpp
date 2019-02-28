@@ -428,7 +428,7 @@ int Overlap_Display(AdjGraphHead * G,int leftIndex,int rightIndex,bool orien,int
 	if(MinOverLen < 500){return 0;} 
 	
 	all++;
-	t=800;
+	t=1000;
 	if(orien==0){
 		
 		if(rightStartpos > leftStartpos){
@@ -601,8 +601,8 @@ int CreatGraph(AdjGraphHead * G, CommonKmer * commonKmer, unsigned long  int sta
 			if(a == 0){
 				if(n1<m1 && n2<m2){
 					minvalue = max((m1-n1),(m2-n2));
-					throld = 150 + minvalue*0.15;
-					if(throld>500){throld = 500;}
+					throld = 200 + minvalue*0.15;
+					if(throld>800){throld = 800;}
 					if(abs((m1-n1)-(m2-n2))< throld){
 						G->arcIndex[G->realCountArc].startIndex = j;
 						G->arcIndex[G->realCountArc].endIndex = k;
@@ -615,8 +615,8 @@ int CreatGraph(AdjGraphHead * G, CommonKmer * commonKmer, unsigned long  int sta
 					}
 				}else if(n1>m1 && n2>m2){
 					minvalue = max((n1-m1),(n2-m2));
-					throld = 150 + minvalue*0.15;
-					if(throld>500){throld = 500;}
+					throld = 200 + minvalue*0.15;
+					if(throld>800){throld = 800;}
 					if(abs((n1-m1)-(n2-m2))< throld){
 						G->arcIndex[G->realCountArc].startIndex = j;
 						G->arcIndex[G->realCountArc].endIndex = k;
@@ -632,8 +632,8 @@ int CreatGraph(AdjGraphHead * G, CommonKmer * commonKmer, unsigned long  int sta
 			if(a == 1){
 				if(n1<m1 && n2>m2){
 					minvalue = max((m1-n1),(n2-m2));
-					throld = 150 + minvalue*0.15;
-					if(throld>500){throld = 500;}
+					throld = 200 + minvalue*0.15;
+					if(throld>800){throld = 800;}
 					if(abs((m1-n1)-(n2-m2))<throld){
 						G->arcIndex[G->realCountArc].startIndex = j;
 						G->arcIndex[G->realCountArc].endIndex = k;
@@ -646,8 +646,8 @@ int CreatGraph(AdjGraphHead * G, CommonKmer * commonKmer, unsigned long  int sta
 					}
 				}else if(n1>m1 && n2<m2){
 					minvalue = max((n1-m1),(m2-n2));
-					throld = 150 + minvalue*0.15;
-					if(throld>500){throld = 500;}
+					throld = 200 + minvalue*0.15;
+					if(throld>800){throld = 800;}
 					if(abs((n1-m1)-(m2-n2))<throld){
 						G->arcIndex[G->realCountArc].startIndex = j;
 						G->arcIndex[G->realCountArc].endIndex = k;
