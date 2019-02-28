@@ -63,10 +63,23 @@ FLRO
 	ATAAGTGATAGCT 4
 	TCGGCCATATTAC 4
 	ATTATTGCAATAC 6
-	An example of command line is shown below.
+     An example of command line is shown below.
 	FLRO sra.fasta kmer 13 1 2 100 result.fa 10
 ```
 5) Output.
 ```
     The output file "output-file-name" is the overlap result.
+     The first column is the first read number.
+    The second column is the second read number.
+    The third column is aligning orientation. 0 represents forward aligning. 1 represents reverse aligning.
+    The fourth column is starting position in the first read.
+    The fifth column is ending position in the first read.
+    The sixth column is the length of the first read.
+    The seventh column is starting position in the second read.
+    The eighth column is ending position in the second read.
+    The ninth column is the length of the second read.
+    
+    One example in the result file is shown below.
+    36423,1,0,5326,9923,9923,1,4364,10479
+    It means the region [5326,9923] in the first read is overlapped with the region [1,4364] in the second read.
 ```
