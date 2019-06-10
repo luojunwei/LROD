@@ -1,5 +1,5 @@
-# FLRO
-FLRO can detect overlap regions among long reads.
+# LROD
+LROD can detect overlap regions among long reads.
 =========
 License
 =========
@@ -32,7 +32,7 @@ FLRO
 
 1) Introduction
 ```
-    FLRO is a tool which aims to detect overlap regions among long reads..
+    LROD is a tool which aims to detect overlap regions among long reads..
     The input long read data of FLRO is the long reads (fasta format).
 ```
 2) Before installing and running
@@ -41,7 +41,7 @@ FLRO
 ```
 3) Installing.
 ```
-    FLRO should run on Linux operating sysetm with gcc. We test FLRO using gcc4.6.3 on Ubuntu.
+    LROD should run on Linux operating sysetm with gcc. We test FLRO using gcc4.6.3 on Ubuntu.
     Create a main directory (eg:FLRO). Copy all source code to this directory.
 	cd FLRO
 	make all
@@ -49,7 +49,7 @@ FLRO
 4) Running.
 ```
     Step 1: Use DSK to crete the kmer frequency file.
-    Step 2: FLRO <long-read-file> <kmer-frequency-file> <kmer-length> <step> <low-kmer-frequency> <high-kmer-frequency> <output-file-name> <thread-number>
+    Step 2: LROD <long-read-file> <kmer-frequency-file> <kmer-length> <step> <low-kmer-frequency> <high-kmer-frequency> <output-file-name> <thread-number>
     Note:
     	Each line in the kmer-frequency-file should be "kmer kmer-frequency". 
 	For example:
