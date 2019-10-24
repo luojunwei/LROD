@@ -297,7 +297,6 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, ReadSetHead * readSetHea
 
 	char * kmer1 = (char *)malloc(sizeof(char)*(kmerLength + 1));
 
-	t = 0;
 
 	for(long int i = 0; i < readSetHead->readCount; i++){
 		
