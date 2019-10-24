@@ -49,7 +49,19 @@ LROD
 4) Running.
 ```
     Step 1: Use DSK to crete the kmer frequency file.
-    Step 2: LROD <long-read-file> <kmer-frequency-file> <kmer-length> <step> <low-kmer-frequency> <high-kmer-frequency> <output-file-name> <thread-number>
+    Step 2: LROD -r <long-read-file> -c <kmer-frequency-file> -o result-file [options]
+    	-r long-read-file: input file with fasta format;
+	-c kmer-frequency-file: each line in the kmer-frequency-file should be "kmer kmer-frequency";
+	-o result-file: result file;
+	-t count: thread count (default 1);
+	-k kmerLength: kmer length (default 13);
+	-q smallKmerLength: small kmer length (default 9);
+	-s kmerStep: kmer step (default 1);
+	-d distance: the small distance used for determining whether two common kmers are consistant (default 400);
+	-e distance: the large distance used for determining whether two common kmers are consistant (default 1500);
+	-a min-overlap-length: the minimum overlap length between two long reads (default 500);
+	-b length-ratio: the maximum length ratio between two aligned regions (default 0.3); 
+	
     Note:
     	Each line in the kmer-frequency-file should be "kmer kmer-frequency". 
 	For example:
@@ -64,7 +76,7 @@ LROD
 	TCGGCCATATTAC 4
 	ATTATTGCAATAC 6
      An example of command line is shown below.
-	FLRO sra.fasta kmer 13 1 2 100 result.fa 10
+	FLRO -r sra.fasta -c kmer-cout -o result.txt
 ```
 5) Output.
 ```
