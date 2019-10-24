@@ -30,8 +30,6 @@ int main(int argc,char** argv)
 	char * binaryKmerFile = NULL;
 	char * outputKmerFile = NULL;
 	long int step = 1;
-	long int Min = -1;
-	long int Max = -1;
 	long int kmerLength = 13;
 	long int smallKmerLength = 9;
 	long int threadCount = 1;
@@ -40,7 +38,6 @@ int main(int argc,char** argv)
 	long int largeIntervalDistance = 1500;
 	long int overlapLengthCutOff = 500;
 	float lengthRatio = 0.15;
-	
 	int frequencyCutOff = 3;
 	
 	
@@ -52,15 +49,12 @@ int main(int argc,char** argv)
 			case 'o': outputKmerFile = (char *)optarg; break;
 			case 'k': kmerLength = atoi(optarg); break;
 			case 'q': smallKmerLength = atoi(optarg); break;
-			case 'm': Min = atoi(optarg); break;
-			case 'n': Max = atoi(optarg); break;
 			case 's': step = atoi(optarg); break;
 			
 			case 'd': smallIntervalDistance = atoi(optarg); break;
 			case 'e': largeIntervalDistance = atoi(optarg); break;
 			case 'a': overlapLengthCutOff = atoi(optarg); break;
 			case 't': threadCount = atoi(optarg); break;
-			case 'f': frequencyCutOff = atoi(optarg); break;
 			case 'b': lengthRatio = atof(optarg); break;
 
 			default: break; 
