@@ -5,41 +5,41 @@
 #define SHIFT 2 
 #define MASK 3 
   
-void SetBitTemp(unsigned int * bit_array, unsigned int bit_number, char value){
+void SetBitTemp(unsigned long int * bit_array, unsigned long int bit_number, char value){
 
     if(value == 'A')
     {
-        unsigned int temp = 3;
+        unsigned long int temp = 3;
         (*bit_array) &= ~(temp<<(2*bit_number)); 
     }
     if(value == 'T')
     {
-        unsigned int temp = 3;
+        unsigned long int temp = 3;
         (*bit_array) |= (temp<<(2*bit_number));
     }
     if(value == 'G')
     {
-        unsigned int temp = 1;
+        unsigned long int temp = 1;
         (*bit_array) |= (temp<<(2*bit_number));
         temp = 1;
         (*bit_array) &= ~(temp<<(2*bit_number+1));
     }
     if(value == 'C')
     {
-        unsigned int temp = 1;
+        unsigned long int temp = 1;
         (*bit_array) |= (temp<<(2*bit_number+1));
         temp = 1;
         (*bit_array) &= ~(temp<<(2*bit_number)); 
     }
     if(value == 'N')
     {
-        unsigned int temp = 3;
+        unsigned long int temp = 3;
         (*bit_array) &= ~(temp<<(2*bit_number)); 
     }
 
 }
 
-void SetBitKmer(unsigned int * bit_array, int len, char * value){
+void SetBitKmer(unsigned long int * bit_array, long int len, char * value){
     int i = 0;
     for(i = 0; i<len; i++){
         SetBitTemp(bit_array, i, value[i]);

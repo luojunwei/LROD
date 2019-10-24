@@ -16,88 +16,130 @@
 using namespace std;
 
 typedef struct CommonKmer{
-	unsigned long  int readIndex;
-	unsigned long  int leftPosition;
-	unsigned long  int rightPosition;
+	long int readIndex;
+	long int leftPosition;
+	long int rightPosition;
 	bool orientation;
 }CommonKmer;
 
 typedef struct CommonKmerHead{
 	CommonKmer * commonKmer;
-	unsigned long int readIndex;
-	unsigned long int realCount;
-	unsigned long int allocationCount;
+	long int readIndex;
+	long int realCount;
+	long int allocationCount;
 }CommonKmerHead;
 
+typedef struct CommonKmerHeadArray{
+	CommonKmerHead * commonKmerHead;
+	long int count;
+}CommonKmerHeadArray;
+
 typedef struct ArcIndex{
-	unsigned long  int startIndex;
-	unsigned long  int endIndex;
+	long int startIndex;
+	long int endIndex;
+	float weight;
 }ArcIndex;
  
 typedef struct AdjGraph{
-	unsigned long  int dataLeft;
-	unsigned long  int dataRight;
-	unsigned long  int eadgCount;
+	long int dataLeft;
+	long int dataRight;
 	bool visit;
 }AdjGraph;
  
 typedef struct AdjGraphHead{
 	AdjGraph * graph;
-	unsigned long  int realCountGraph;
-	unsigned long  int allocationCountGraph;
+	long int realCountGraph;
+	long int allocationCountGraph;
 	AdjGraph * reverseGraph;
-	unsigned long  int reverseRealCountGraph;
-	unsigned long  int reverseAllocationCountGraph;
+	long int reverseRealCountGraph;
+	long int reverseAllocationCountGraph;
 	ArcIndex * arcIndex;
-	unsigned long  int realCountArc;
-	unsigned long  int allocationCountArc;
-	int * distanceToSource;
-	int * edgeToSource;
-	unsigned long  int nodeCount;
+	long int realCountArc;
+	long int allocationCountArc;
+	float * distanceToSource;
+	long int * edgeToSource;
+	bool * visited;
+	long int largestIntervalDistance;
+	long int nodeCount;
 	long int leftStart;
 	long int rightStart;
 	long int leftEnd;
 	long int rightEnd;
+	char * localLeftRead;
+	char * localRightRead;
+	long int smallKmerLength;
+	long int kmerLength;
+	float lengthRatio;
+	long int overlapLengthCutOff;
 }AdjGraphHead;
 
 typedef struct GetCommonKmerHeadP{
 	KmerHashTableHead * kmerHashTableHead;
 	KmerReadNodeHead * kmerReadNodeHead;
 	ReadSetHead * readSetHead;
-	int kmerLength;
+	long int kmerLength;
 	char * readFile;
 	char * outputFile;
-	unsigned long  int step;
-	int threadIndex;
-	int totalThreadNumber;
+	long int step;
+	long int threadIndex;
+	long int totalThreadNumber;
+	long int smallIntervalDistance;
+	long int largeIntervalDistance;
+	long int overlapLengthCutOff;
+	long int smallKmerLength;
+	float lengthRatio;
 }GetCommonKmerHeadP;
 
 void ReAllocateCommonKmer(CommonKmerHead * commonKmerHead);
 
-void InsertCommonToTwoReadAligningHead(CommonKmerHead * commonKmerHead, KmerReadNodeHead * kmerReadNodeHead, KmerHashTableHead * kmerHashTableHead, long int hashIndex, unsigned long int readIndex);
+void InsertCommonToTwoReadAligningHead(CommonKmerHead * commonKmerHead, KmerReadNodeHead * kmerReadNodeHead, KmerHashTableHead * kmerHashTableHead, long int hashIndex, unsigned long int readIndex, unsigned long  long int position, bool orien);
 
-CommonKmerHead * GetCommonKmerHead(KmerHashTableHead * kmerHashTableHead, KmerReadNodeHead * kmerReadNodeHead, ReadSetHead * readSetHead, int kmerLength, char * readFile,  char * outputFile, unsigned long  int step);
+CommonKmerHead * GetCommonKmerHead(KmerHashTableHead * kmerHashTableHead, KmerReadNodeHead * kmerReadNodeHead, ReadSetHead * readSetHead, long int kmerLength, char * readFile,  char * outputFile, unsigned long  long int step);
 
-void sort(CommonKmer * a, int left, int right);
+void sort(CommonKmer * a, long int left, long int right);
 
-void sortGraph(AdjGraph * graph, int left, int right);
+void sortGraph(AdjGraph * graph, long int left, long int right);
 
 void DestroyGraph(AdjGraphHead * G);
 
-int Overlap_Display(AdjGraphHead * G,int leftIndex,int rightIndex,bool orien,int leftLen,int rightLen,FILE * fp);
+long int Overlap_Display(AdjGraphHead * G,long int leftIndex,long int rightIndex,bool orien,long int leftLen,long int rightLen,FILE * fp, AdjGraphHead * localG, CommonKmerHead * localCommonKmerHead, char * leftRead, char * rightRead);
 
-double GetLongestPathInGraph(AdjGraphHead * G, bool orien);
+long int Overlap_DisplayLocalRegion(AdjGraphHead * G,long int leftLen,long int rightLen);
 
-int CreatGraph(AdjGraphHead * G, CommonKmer * commonKmer, unsigned long  int startIndex, unsigned long  int endIndex, int a);
+long int AddEdgeInGraph(AdjGraphHead * G, bool orientation, long int leftIndex , long int rightIndex, long int largestIntervalDistance, long int maxIntervalDistance, AdjGraphHead * localG, CommonKmerHead * localCommonKmerHead, char * leftRead, char * rightRead);
 
-void GetOverlapResult(AdjGraphHead * G, CommonKmerHead * commonKmerHead, ReadSetHead * readSetHead,FILE * fp);
+long int CreatGraphSinglePath(AdjGraphHead * G, CommonKmer * commonKmer, unsigned long int startIndex, unsigned long int endIndex, long int a, long int leftIndex, long int rightIndex, long int leftLen, long int rightLen, FILE * fp, AdjGraphHead * localG, CommonKmerHead * localCommonKmerHead, char * leftRead, char * rightRead);
 
-void ReAllocateAdjGraph(AdjGraphHead * G, int a);
+long int CreatGraphLocalRegion(AdjGraphHead * G, long int distance);
+
+void GetOverlapResult(AdjGraphHead * G, CommonKmerHead * commonKmerHead, ReadSetHead * readSetHead, AdjGraphHead * localG, CommonKmerHead * localCommonKmerHead, FILE * fp);
+
+void ReAllocateAdjGraph(AdjGraphHead * G, long int a);
 
 void ReAllocateArcIndex(AdjGraphHead * G);
 
 void * GetCommonKmerHeadThread(void * arg);
 
-CommonKmerHead * GetCommonKmerHeadAllThread(KmerHashTableHead * kmerHashTableHead, KmerReadNodeHead * kmerReadNodeHead, ReadSetHead * readSetHead, int kmerLength, char * readFile, char * outputFile, unsigned long  int step, int totalThreadNumber);
+CommonKmerHead * GetCommonKmerHeadAllThread(KmerHashTableHead * kmerHashTableHead, KmerReadNodeHead * kmerReadNodeHead, ReadSetHead * readSetHead, long int kmerLength, char * readFile, char * outputFile, unsigned long  long int step, long int totalThreadNumber, long int smallKmerLength, long int smallIntervalDistance, long int largeIntervalDistance, long int overlapLengthCutOff, float lengthRatio);
+
+void DetectCommon(CommonKmerHead * commonKmerHead, long int position, char * kmer, char * read, long int readLength, long int kmerLength, long int distance);
+
+long int GetCommonShorterKmer(AdjGraphHead * G, CommonKmerHead * commonKmerHead, char * leftRead, char * rightRead, long int leftStartPosition, long int leftEndPosition, long int rightStartPosition, long int rightEndPosition, long int kmerLength, bool orientation);
+
+void swapCommonKmer(CommonKmer *a, long int left, long int right);
+
+void downToMaxHeap(CommonKmer *a, long int bgn, long int end);
+
+void BubbleSort(CommonKmer *a, long int left, long int right);
+
+void buildMaxHeap(CommonKmer *a, long int bgn, long int end);
+
+void heapSort(CommonKmer *a, long int bgn, long int end);
+
+void SubRemoveMultipleSameKmer(CommonKmerHead * commonKmerHead, long int startIndex, long int endIndex);
+
+void RemoveMultipleSameKmer(CommonKmerHead * commonKmerHead);
+
+void RemoveLowNumberKmer(CommonKmerHead * commonKmerHead, long int * forwardKmerCount, long int * reverseKmerCount, long int readCount);
 
 #endif

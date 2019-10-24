@@ -12,35 +12,33 @@
 using namespace std;
 
 typedef struct ReadSet{
-//	char * read;
-	int readLength;
+	char * read;
+	long int readLength;
 //	long int allReadLen;
 	
 }ReadSet;
 
 typedef struct ReadSetHead{
 	ReadSet * readSet;
-	int readCount;
+	long int readCount;
 }ReadSetHead;
 
 
 typedef struct ReadToKmerIndex{
-	int * index;
-	int indexCount;
+	long int * index;
+	long int indexCount;
 }ReadToKmerIndex;
 
 typedef struct ReadToKmerIndexSet{
 	ReadToKmerIndex * readToKmerIndex;
-	int readCount;
+	long int readCount;
 }ReadToKmerIndexSet;
 
 
-ReadSetHead * GetReadSetHead(char *filename,char *StrLine, int maxSize);
+ReadSetHead * GetReadSetHead(char *filename,char *StrLine, long int maxSize);
 
 long int max (long int x, long int y);
 
 long int min (long int x, long int y);
-
-//ReadSet * ReadSpeacialLine(char *filename,char *StrLine, int maxSize,ReadSet * readSet);
 
 #endif

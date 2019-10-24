@@ -11,13 +11,13 @@
 #include <malloc.h>
 
 #include "read.h"
-//#include "FindNumber.h"
 #include "bitarray.h"
 using namespace std;
 
 typedef struct KmerHashNode{
     unsigned int kmer;
-	unsigned long int startPositionInArray;
+	unsigned int startPositionInArray;
+	//unsigned int fre;
 }KmerHashNode;
 
 typedef struct KmerHashTableHead{
@@ -36,27 +36,25 @@ typedef struct KmerReadNodeHead{
     KmerReadNode * kmerReadNode;
 	long int realCount;
     long int allocationCount;
-	int kmerLength;
+	long int kmerLength;
 }KmerReadNodeHead;
 
 
 char *  strup(char * str);
 
-void ReverseComplementKmer(char * kmer, int kmerLength);
+void ReverseComplementKmer(char * kmer, long int kmerLength);
 
 unsigned int hash32shift(unsigned int key);
 
-unsigned long int Hash(unsigned int kmer, unsigned long int max);
+unsigned int Hash(unsigned int kmer, unsigned int max);
 
 long int SearchKmerHashTable(KmerHashTableHead * kmerHashTableHead, unsigned int kmer);
 
 void sort(KmerReadNodeHead * a, long int left, long int right);
 
-KmerReadNodeHead * InitKmerReadNodeHead(char * address, char * file, int kmerLength, int step, int min, int max, KmerHashTableHead * kmerHashTableHead);
+bool DetectSameKmer(char * kmer, long int kmerLength);
 
-
-
-
+KmerReadNodeHead * InitKmerReadNodeHead(char * address, ReadSetHead * readSetHead, long int kmerLength, long int step, KmerHashTableHead * kmerHashTableHead, int frequencyCutOff);
 
 
 

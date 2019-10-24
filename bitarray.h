@@ -5,9 +5,9 @@
 #define SHIFT 2 
 #define MASK 3 
   
-void SetBitTemp(unsigned int * bit_array, unsigned int bit_number, char value);
+void SetBitTemp(unsigned long int * bit_array, unsigned long int bit_number, char value);
 
-void SetBitKmer(unsigned int * bit_array, int len, char * value);
+void SetBitKmer(unsigned long int * bit_array, long int len, char * value);
 
 char GetBit(unsigned long long int * bit_array, unsigned int bit_number);
 

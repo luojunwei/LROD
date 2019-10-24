@@ -5,7 +5,11 @@
 #include<ctype.h>
 #include <time.h>
 #include <malloc.h>
-#include <string.h>
+
+#include <getopt.h>
+#include <sys/types.h>
+#include <dirent.h>
+#include <sys/stat.h>
 
 
 #include "kmer.h"
@@ -19,41 +23,58 @@ using namespace std;
 int main(int argc,char** argv)
 {
 	
-	int maxSize = 100000;
+	long int maxSize = 1000000;
 	char * StrLine = (char *)malloc(sizeof(char)*maxSize);
-	int kmerLength = atoi(argv[3]);
-	int i,j;
-	int readcount;
+
+	char * readFile = NULL;
+	char * binaryKmerFile = NULL;
+	char * outputKmerFile = NULL;
+	long int step = 1;
+	long int Min = -1;
+	long int Max = -1;
+	long int kmerLength = 13;
+	long int smallKmerLength = 9;
+	long int threadCount = 1;
 	
-	int fileNameLen = strlen(argv[1]);
-	char * readFile = (char *)malloc(sizeof(char)*fileNameLen + 10);
-	strcpy(readFile, argv[1]);
-	fileNameLen = strlen(argv[2]);
-	char * binaryKmerFile = (char *)malloc(sizeof(char)*fileNameLen + 10);
-	strcpy(binaryKmerFile, argv[2]);
+	long int smallIntervalDistance = 500;
+	long int largeIntervalDistance = 1500;
+	long int overlapLengthCutOff = 500;
+	float lengthRatio = 0.15;
 	
-	int step =  atoi(argv[4]);
-	int Min = atoi(argv[5]);
-	int Max = atoi(argv[6]);
-	fileNameLen = strlen(argv[7]); 
-	char * outputKmerFile = (char *)malloc(sizeof(char)*fileNameLen + 10);
-	strcpy(outputKmerFile, argv[7]);
+	int frequencyCutOff = 3;
 	
-	ReadSetHead * readSetHead = GetReadSetHead(readFile,StrLine,maxSize);
-	free(StrLine);
 	
-	readcount = readSetHead->readCount;
-	int indexNumCut =  atoi(argv[3]);
-	if(indexNumCut == 0 || indexNumCut>readcount){
-		indexNumCut = readcount;
+	int ch = 0;
+	while ((ch = getopt(argc, argv, "c:r:o:m:n:d:k:e:a:s:t:f:q:b:")) != -1) {
+		switch (ch) {
+			case 'r': readFile = (char *)(optarg); break;
+			case 'c': binaryKmerFile = (char *)(optarg); break;
+			case 'o': outputKmerFile = (char *)optarg; break;
+			case 'k': kmerLength = atoi(optarg); break;
+			case 'q': smallKmerLength = atoi(optarg); break;
+			case 'm': Min = atoi(optarg); break;
+			case 'n': Max = atoi(optarg); break;
+			case 's': step = atoi(optarg); break;
+			
+			case 'd': smallIntervalDistance = atoi(optarg); break;
+			case 'e': largeIntervalDistance = atoi(optarg); break;
+			case 'a': overlapLengthCutOff = atoi(optarg); break;
+			case 't': threadCount = atoi(optarg); break;
+			case 'f': frequencyCutOff = atoi(optarg); break;
+			case 'b': lengthRatio = atof(optarg); break;
+
+			default: break; 
+		}
 	}
 	
+	ReadSetHead * readSetHead = GetReadSetHead(readFile,StrLine,maxSize);
+	
 	KmerHashTableHead * kmerHashTableHead = (KmerHashTableHead *)malloc(sizeof(KmerHashTableHead));
+
+	KmerReadNodeHead * kmerReadNodeHead = InitKmerReadNodeHead(binaryKmerFile,readSetHead,kmerLength,step,kmerHashTableHead,frequencyCutOff);
 	
-	KmerReadNodeHead * kmerReadNodeHead = InitKmerReadNodeHead(binaryKmerFile,readFile,kmerLength,step,Min,Max,kmerHashTableHead);
-	
-	GetCommonKmerHeadAllThread(kmerHashTableHead, kmerReadNodeHead, readSetHead, kmerLength, readFile, outputKmerFile, step, atoi(argv[8]));
-		
+	GetCommonKmerHeadAllThread(kmerHashTableHead, kmerReadNodeHead, readSetHead, kmerLength, readFile, outputKmerFile, step, threadCount, smallKmerLength, smallIntervalDistance, largeIntervalDistance, overlapLengthCutOff, lengthRatio);
+
 	return 0;
 
 }

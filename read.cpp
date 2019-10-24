@@ -29,23 +29,19 @@ long int min (long int x, long int y)
 	return (z);
 }
 
-ReadSetHead * GetReadSetHead(char *filename,char *StrLine, int maxSize){
+ReadSetHead * GetReadSetHead(char *filename,char *StrLine, long int maxSize){
 	
 	ReadSetHead * readSetHead = (ReadSetHead * )malloc(sizeof(ReadSetHead));
 	
 	FILE *fp; 
-	int m=1;
-    if((fp = fopen(filename,"r")) == NULL) 
-    { 
+	long int m=1;
+    if((fp = fopen(filename,"r")) == NULL){ 
         printf("error!"); 
         return NULL; 
     } 
 	
     readSetHead->readCount = 0;
-	while(fgets(StrLine,maxSize,fp)){
-		if(StrLine[0]=='\n' || StrLine[0]=='\r'){break;}
-		if(feof(fp)){break;}
-		
+	while((fgets(StrLine, maxSize, fp)) != NULL){	
 		if(StrLine[0]=='>'){
 			readSetHead->readCount++;
 		}
@@ -53,29 +49,35 @@ ReadSetHead * GetReadSetHead(char *filename,char *StrLine, int maxSize){
 	fclose(fp);
 	
 	readSetHead->readSet = (ReadSet *)malloc(sizeof(ReadSet)*readSetHead->readCount);
-	for(int i = 0; i <readSetHead->readCount; i++){
+	for(long int i = 0; i <readSetHead->readCount; i++){
 		readSetHead->readSet[i].readLength = 0;
 	}
 	
 	FILE *fp1; 
-	if((fp1 = fopen(filename,"r")) == NULL) 
-    { 
+	if((fp1 = fopen(filename,"r")) == NULL){ 
         printf("error!"); 
         return NULL; 
     } 
-	int readIndex = -1;
-	int j = 0;
+	long int readIndex = -1;
+	long int j = 0;
 	long int allReadLen = 0;
+	while((fgets(StrLine, maxSize, fp1)) != NULL){
 
-	while(fgets(StrLine,maxSize,fp1)){
-		if(StrLine[0]=='\n' || StrLine[0]=='\r'){break;}
-		if(feof(fp1)){break;}
 		j++;
-		if(j%2 == 1){
+
+		if(StrLine[0]=='>'){
 			readIndex++;
 			continue;
 		}
+		
 		readSetHead->readSet[readIndex].readLength = strlen(StrLine);
+		if(StrLine[readSetHead->readSet[readIndex].readLength - 1]=='\n' || StrLine[readSetHead->readSet[readIndex].readLength - 1]=='\r'){
+			readSetHead->readSet[readIndex].readLength--;
+		}
+		
+		readSetHead->readSet[readIndex].read = (char *)malloc(sizeof(char)*(readSetHead->readSet[readIndex].readLength + 1));
+		strncpy(readSetHead->readSet[readIndex].read, StrLine, readSetHead->readSet[readIndex].readLength);
+		readSetHead->readSet[readIndex].read[readSetHead->readSet[readIndex].readLength] = '\0';
 	}
 
 	return readSetHead;

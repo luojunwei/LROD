@@ -10,11 +10,12 @@
 #include <math.h>
 #include <malloc.h>
 #include<assert.h> 
+#include <time.h>
 
 #include "kmer.h"
 #include "bitarray.h"
 
-char *  strup(char * str)     
+char * strup(char * str)     
 {  
     assert(str);                  
     char *ret = str;              
@@ -43,12 +44,12 @@ unsigned int hash32shift(unsigned int key)
 }
 
 
-unsigned long int Hash(unsigned int kmer, unsigned long int max)  
+unsigned int Hash(unsigned int kmer, unsigned int max)  
 {  
    return (hash32shift(kmer)*kmer) % max;  
 } 
 
-void ReverseComplementKmer(char * kmer, int kmerLength){
+void ReverseComplementKmer(char * kmer, long int kmerLength){
 	for(int k = 0; k < kmerLength/2; k++){
 		char temp = kmer[k];
 		kmer[k] = kmer[kmerLength -1 - k];
@@ -73,7 +74,7 @@ void ReverseComplementKmer(char * kmer, int kmerLength){
 
 long int SearchKmerHashTable(KmerHashTableHead * kmerHashTableHead, unsigned int kmer){
 
-	unsigned long int hashIndex = Hash(kmer, kmerHashTableHead->allocationCount);
+	long int hashIndex = Hash(kmer, kmerHashTableHead->allocationCount);
 	while(true){
 		if(kmerHashTableHead->kmerHashNode[hashIndex].kmer == 0){
 			return -1;;
@@ -86,7 +87,6 @@ long int SearchKmerHashTable(KmerHashTableHead * kmerHashTableHead, unsigned int
 	}
 	return -1;
 }
-
 
 void sort(KmerReadNode * a, long int left, long int right)
 {
@@ -105,21 +105,27 @@ void sort(KmerReadNode * a, long int left, long int right)
         while(i < j && key <= a[j].kmer){
             j--;
         }
-         
-        a[i].kmer = a[j].kmer;
-		a[i].readIndex = a[j].readIndex;
-		a[i].position = a[j].position;
-		a[i].orientation = a[j].orientation;
-        
+		
+		if(i < j){
+			a[i].kmer = a[j].kmer;
+			a[i].readIndex = a[j].readIndex;
+			a[i].position = a[j].position;
+			a[i].orientation = a[j].orientation;
+			i++;
+		}
          
         while(i < j && key >= a[i].kmer){
             i++;
         }
+		
+		if(i < j){
+			a[j].kmer = a[i].kmer;
+			a[j].readIndex = a[i].readIndex;
+			a[j].position = a[i].position;
+			a[j].orientation = a[i].orientation;
+			j--;
+		}
          
-        a[j].kmer = a[i].kmer;
-		a[j].readIndex = a[i].readIndex;
-		a[j].position = a[i].position;
-		a[j].orientation = a[i].orientation;
     }
      
     a[i].kmer = key;
@@ -132,8 +138,21 @@ void sort(KmerReadNode * a, long int left, long int right)
                    
 }
 
+bool DetectSameKmer(char * kmer, long int kmerLength){
+	long int i = 1;
+	for(; i < kmerLength; i++){
+		if(kmer[0] != kmer[i]){
+			break;
+		}
+	}
+	if(i < kmerLength){
+		return true;
+	}
+	return false;
 
-KmerReadNodeHead * InitKmerReadNodeHead(char * address, char * file,int kmerLength,int step ,int min, int max, KmerHashTableHead * kmerHashTableHead){
+}
+
+KmerReadNodeHead * InitKmerReadNodeHead(char * address, ReadSetHead * readSetHead, long int kmerLength, long int step , KmerHashTableHead * kmerHashTableHead, int frequencyCutOff){
 
 	FILE * fp; 
     if((fp = fopen(address, "r")) == NULL){
@@ -141,13 +160,19 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, char * file,int kmerLeng
         exit(0);
     }
 	long int hashIndex = 0;
-	int maxSize = 1000;
+	long int maxSize = 100000;
 	char * line = (char *)malloc(sizeof(char)*maxSize);
 	char * kmer = (char *)malloc(sizeof(char)*(kmerLength + 1));
 	char * kmerC = (char *)malloc(sizeof(char)*(10 + 1));
 	long int kmerCount = 0;
 	long int length = 0;
 	int frequency = 0;
+	
+	long int arrayCount = 1000000;
+	int * freArray = (int *)malloc(sizeof(int)*arrayCount);
+	for(long int i = 0; i < arrayCount; i++){
+		freArray[i] = 0;
+	}
 
 	long int allKmerFrequency = 0;
 	while((fgets(line, maxSize, fp)) != NULL){
@@ -155,15 +180,65 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, char * file,int kmerLeng
 		strncpy(kmer, line + kmerLength + 1, length - kmerLength - 1);
 		kmer[length-kmerLength-1] = '\0';
 		frequency = atoi(kmer);	
+		freArray[frequency]++;
+		kmerCount++;
+		allKmerFrequency = allKmerFrequency + frequency;
+	}
+	float acc = 0;
+	long int max = 0;
+	long int min = 0;
+	
+	for(long int i = 0; i < arrayCount; i++){
+		if(freArray[i] != 0){
+			acc = acc + (float)(freArray[i]*i)/allKmerFrequency;
+			if(acc > 0.9 && max == 0){
+				max = i;
+				break;
+			}
+		}
+		
+	}
+	
+
+	if(min < 2){
+		min = 2;
+	}
+	min = 2;
+	
+	if(min > max){
+		cout<<"min is larger than max!"<<endl;
+		exit(0);
+	}
+	
+	fclose(fp);
+
+	kmerCount = 0;
+	allKmerFrequency = 0;
+	
+
+    if((fp = fopen(address, "r")) == NULL){
+        printf("%s, does not exist!", address);
+        exit(0);
+    }
+	while((fgets(line, maxSize, fp)) != NULL){
+		strncpy(kmer, line, kmerLength);
+		kmer[kmerLength]='\0';
+		if(DetectSameKmer(kmer, kmerLength) != true){
+			continue;
+		}
+		
+		length = strlen(line);
+		strncpy(kmerC, line + kmerLength + 1, length - kmerLength - 1);
+		kmerC[length-kmerLength-1] = '\0';
+		frequency = atoi(kmerC);
 		if(frequency <= max && frequency >= min){
 			kmerCount++;
 			allKmerFrequency = allKmerFrequency + frequency;
 		}
 	}
-	
 	fclose(fp);
-
-	kmerHashTableHead->allocationCount = kmerCount*1.5;
+	
+	kmerHashTableHead->allocationCount = kmerCount*1.2;
 	kmerHashTableHead->kmerHashNode = (KmerHashNode *)malloc(sizeof(KmerHashNode)*kmerHashTableHead->allocationCount);
 	
 	for(unsigned long int i = 0; i < kmerHashTableHead->allocationCount; i++){
@@ -176,12 +251,15 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, char * file,int kmerLeng
         exit(0);
     }
 	
-	unsigned int kmerInteger = 0;
-	
+	unsigned long int kmerInteger = 0;
+	long int t = 0;
 	while((fgets(line, maxSize, fp)) != NULL){
-		
+
 		strncpy(kmer, line, kmerLength);
 		kmer[kmerLength]='\0';
+		if(DetectSameKmer(kmer, kmerLength) != true){
+			continue;
+		}
 		length = strlen(line);
 		strncpy(kmerC, line + kmerLength + 1, length - kmerLength - 1);
 		kmerC[length-kmerLength-1] = '\0';
@@ -203,8 +281,6 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, char * file,int kmerLeng
 		}
 	}
 	fclose(fp);
-
-	
 	
 	KmerReadNodeHead * kmerReadNodeHead = (KmerReadNodeHead *)malloc(sizeof(KmerReadNodeHead));
 	kmerReadNodeHead->realCount = 0;
@@ -214,34 +290,29 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, char * file,int kmerLeng
 	for(long int i = 0; i < kmerReadNodeHead->allocationCount; i++){
 		kmerReadNodeHead->kmerReadNode[i].kmer = 0;
 	}
-	
-	if((fp = fopen(file, "r")) == NULL){
-        printf("%s, does not exist!", file);
-        exit(0);
-    }
-	
+
 	unsigned int readIndex = 0;
 	long int Size = 100000;
 	long int readLength = 0;
 	char str[Size];
 	char * kmer1 = (char *)malloc(sizeof(char)*(kmerLength + 1));
 
-	while(!feof(fp)){
-		fgets(str, Size, fp);
-		if(str[0]=='>'){
-			readIndex++;
-			continue;
-		}
+	t = 0;
+
+	for(long int i = 0; i < readSetHead->readCount; i++){
 		
-		readLength = strlen(str);
+		readLength = readSetHead->readSet[i].readLength;
 		for(int j = 0; j < readLength - kmerLength + 1;j = j+step){
-			strncpy(kmer1,str + j, kmerLength);
+			strncpy(kmer1,readSetHead->readSet[i].read + j, kmerLength);
 			kmer1[kmerLength] = '\0';
+			if(DetectSameKmer(kmer1, kmerLength) != true){
+				continue;
+			}
 			SetBitKmer(&kmerInteger, kmerLength, kmer1);
 			hashIndex = SearchKmerHashTable(kmerHashTableHead, kmerInteger);
 			if(hashIndex!=-1){
 				kmerReadNodeHead->kmerReadNode[kmerReadNodeHead->realCount].kmer = kmerInteger;
-				kmerReadNodeHead->kmerReadNode[kmerReadNodeHead->realCount].readIndex = readIndex; 
+				kmerReadNodeHead->kmerReadNode[kmerReadNodeHead->realCount].readIndex = i+1; 
 				kmerReadNodeHead->kmerReadNode[kmerReadNodeHead->realCount].position= j; 
 				kmerReadNodeHead->kmerReadNode[kmerReadNodeHead->realCount].orientation = true;
 				kmerReadNodeHead->realCount++;
@@ -251,16 +322,17 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, char * file,int kmerLeng
 				hashIndex = SearchKmerHashTable(kmerHashTableHead, kmerInteger);
 				if(hashIndex!=-1){
 					kmerReadNodeHead->kmerReadNode[kmerReadNodeHead->realCount].kmer = kmerInteger;
-					kmerReadNodeHead->kmerReadNode[kmerReadNodeHead->realCount].readIndex = readIndex; 
+					kmerReadNodeHead->kmerReadNode[kmerReadNodeHead->realCount].readIndex = i+1; 
 					kmerReadNodeHead->kmerReadNode[kmerReadNodeHead->realCount].position= j; 
 					kmerReadNodeHead->kmerReadNode[kmerReadNodeHead->realCount].orientation = false;
 					kmerReadNodeHead->realCount++;
 				}
 			}	
-		}
+		}	
 	}
-	
+
 	sort(kmerReadNodeHead->kmerReadNode, 0, kmerReadNodeHead->realCount - 1);
+
 	kmerInteger = kmerReadNodeHead->kmerReadNode[0].kmer + 1;
 	for(long int i = 0; i < kmerReadNodeHead->realCount; i++){
 		if(kmerReadNodeHead->kmerReadNode[i].kmer != kmerInteger){
@@ -269,13 +341,13 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, char * file,int kmerLeng
 			kmerHashTableHead->kmerHashNode[hashIndex].startPositionInArray = i;
 		}
 	}
-	
-	fclose(fp);
+
 	free(line);
 	free(kmer);
 	free(kmerC);
 	free(kmer1);
-
+	kmerReadNodeHead->kmerLength = kmerLength;
+	
 	return kmerReadNodeHead;
 }
 
