@@ -252,7 +252,7 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, ReadSetHead * readSetHea
     }
 	
 	unsigned long int kmerInteger = 0;
-	long int t = 0;
+
 	while((fgets(line, maxSize, fp)) != NULL){
 
 		strncpy(kmer, line, kmerLength);
@@ -291,10 +291,10 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, ReadSetHead * readSetHea
 		kmerReadNodeHead->kmerReadNode[i].kmer = 0;
 	}
 
-	unsigned int readIndex = 0;
-	long int Size = 100000;
+
+
 	long int readLength = 0;
-	char str[Size];
+
 	char * kmer1 = (char *)malloc(sizeof(char)*(kmerLength + 1));
 
 	t = 0;
