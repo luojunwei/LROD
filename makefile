@@ -2,7 +2,7 @@ CC=g++
 
 CPPFLAGS = -g -Wall -O3
 
-FLRO: main.o read.o kmer.o aligning.o bitarray.o
+LROD: main.o read.o kmer.o aligning.o bitarray.o
 	$(CC) -o $@ $^ -lpthread
 	
 main.o: main.cpp read.h kmer.h aligning.h bitarray.h
@@ -22,9 +22,9 @@ aligning.o: aligning.cpp kmer.h read.h bitarray.h
 
 
 	
-all: FLRO
+all: LROD
 	rm -f *.o
 
 clean:
 	rm -f *.o
-	rm FLRO
+	rm LROD
