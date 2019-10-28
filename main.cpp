@@ -34,10 +34,10 @@ int main(int argc,char** argv)
 	long int smallKmerLength = 9;
 	long int threadCount = 1;
 	
-	long int smallIntervalDistance = 500;
+	long int smallIntervalDistance = 400;
 	long int largeIntervalDistance = 1500;
 	long int overlapLengthCutOff = 500;
-	float lengthRatio = 0.15;
+	float lengthRatio = 0.3;
 	int frequencyCutOff = 3;
 	
 	
