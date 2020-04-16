@@ -631,7 +631,9 @@ long int Overlap_DisplayLocalRegion(AdjGraphHead * G,long int leftLen,long int r
 
 
 long int Overlap_Display_Graph(AdjGraphHead * G, long int leftIndex,long int rightIndex,bool orien,long int leftLen,long int rightLen,FILE * fp, long int leftStartpos, long int leftEndpos, long int rightStartpos, long int rightEndpos, AdjGraphHead * localG, CommonKmerHead * localCommonKmerHead, char * leftRead, char * rightRead){
-
+	if(leftIndex == rightIndex){
+		return 0;
+	}
 	long int kmerLength = G->kmerLength;
 	
 	long int i;
