@@ -443,9 +443,8 @@ KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHe
 		min = 2;
 	}
 
-	if(min > max){
-		
-		cout<<"minimumKmerFrequency is larger than maxKmerFrequencyRatio. Please check the input parameters!"<<endl;
+	if(min > max){	
+		cout<<"The paramter minimumKmerFrequency is larger than maxKmerFrequencyRatio. Please increas the value of maxKmerFrequencyRatio or decrease the value of minimumKmerFrequency!"<<endl;
 		exit(0);
 	}
 	
