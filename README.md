@@ -1,4 +1,4 @@
-# LROD
+# LROD (Version 1.0)
 LROD can detect overlap regions among long reads.
 =========
 License
