@@ -442,7 +442,7 @@ KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHe
 		printf("minimumKmerFrequency < 2, LROD sets minimumKmerFrequency = 2!");
 		min = 2;
 	}
-	min = 2;
+
 	if(min > max){
 		
 		cout<<"minimumKmerFrequency is larger than maxKmerFrequencyRatio. Please check the input parameters!"<<endl;
