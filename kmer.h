@@ -16,7 +16,7 @@ using namespace std;
 
 typedef struct KmerHashNode{
     unsigned int kmer;
-	unsigned int startPositionInArray;
+	int startPositionInArray;
 	//unsigned int fre;
 }KmerHashNode;
 
@@ -37,6 +37,8 @@ typedef struct KmerReadNodeHead{
 	long int realCount;
     long int allocationCount;
 	long int kmerLength;
+	long int startReadIndex;
+	long int endReadIndex;
 }KmerReadNodeHead;
 
 
@@ -56,6 +58,10 @@ bool DetectSameKmer(char * kmer, long int kmerLength);
 
 KmerReadNodeHead * InitKmerReadNodeHead(char * address, ReadSetHead * readSetHead, long int kmerLength, long int step, KmerHashTableHead * kmerHashTableHead, int frequencyCutOff);
 
+KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHead, long int kmerLength, long int step, long int min, float maxRatio);
 
+KmerReadNodeHead * GetKmerReadNodeHeadSub(ReadSetHead * readSetHead, long int kmerLength, long int step, long int intervalCount);
+
+void InitKmerReadNodeHeadSub(ReadSetHead * readSetHead, KmerReadNodeHead * kmerReadNodeHead, KmerHashTableHead * kmerHashTableHead, long int kmerLength, long int step, long int startReadIndex, long int endReadIndex);
 
 #endif

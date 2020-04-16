@@ -48,6 +48,8 @@ ReadSetHead * GetReadSetHead(char *filename,char *StrLine, long int maxSize){
 	}
 	fclose(fp);
 	
+	printf("Number of long reads: %ld;\n",readSetHead->readCount);
+	
 	readSetHead->readSet = (ReadSet *)malloc(sizeof(ReadSet)*readSetHead->readCount);
 	for(long int i = 0; i <readSetHead->readCount; i++){
 		readSetHead->readSet[i].readLength = 0;
@@ -78,8 +80,9 @@ ReadSetHead * GetReadSetHead(char *filename,char *StrLine, long int maxSize){
 		readSetHead->readSet[readIndex].read = (char *)malloc(sizeof(char)*(readSetHead->readSet[readIndex].readLength + 1));
 		strncpy(readSetHead->readSet[readIndex].read, StrLine, readSetHead->readSet[readIndex].readLength);
 		readSetHead->readSet[readIndex].read[readSetHead->readSet[readIndex].readLength] = '\0';
+		
 	}
-
+	
 	return readSetHead;
 }
 

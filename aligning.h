@@ -88,6 +88,7 @@ typedef struct GetCommonKmerHeadP{
 	long int overlapLengthCutOff;
 	long int smallKmerLength;
 	float lengthRatio;
+	long int startReadIndex;
 }GetCommonKmerHeadP;
 
 void ReAllocateCommonKmer(CommonKmerHead * commonKmerHead);
@@ -120,7 +121,11 @@ void ReAllocateArcIndex(AdjGraphHead * G);
 
 void * GetCommonKmerHeadThread(void * arg);
 
-CommonKmerHead * GetCommonKmerHeadAllThread(KmerHashTableHead * kmerHashTableHead, KmerReadNodeHead * kmerReadNodeHead, ReadSetHead * readSetHead, long int kmerLength, char * readFile, char * outputFile, unsigned long  long int step, long int totalThreadNumber, long int smallKmerLength, long int smallIntervalDistance, long int largeIntervalDistance, long int overlapLengthCutOff, float lengthRatio);
+CommonKmerHead * GetCommonKmerHeadAllThread(KmerHashTableHead * kmerHashTableHead, KmerReadNodeHead * kmerReadNodeHead, ReadSetHead * readSetHead, long int kmerLength, char * readFile, char * outputFile, unsigned long  long int step, long int totalThreadNumber, long int smallKmerLength, long int smallIntervalDistance, long int largeIntervalDistance, long int overlapLengthCutOff, float lengthRatio, long int startReadIndex);
+
+
+CommonKmerHead * GetCommonKmerHeadAllThreadNew(KmerHashTableHead * kmerHashTableHead, KmerReadNodeHead * kmerReadNodeHead, ReadSetHead * readSetHead, long int kmerLength, char * readFile, char * outputFile, unsigned long  long int step, long int totalThreadNumber, long int smallKmerLength, long int smallIntervalDistance, long int largeIntervalDistance, long int overlapLengthCutOff, float lengthRatio, long int subReadCount);
+
 
 void DetectCommon(CommonKmerHead * commonKmerHead, long int position, char * kmer, char * read, long int readLength, long int kmerLength, long int distance);
 

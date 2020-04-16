@@ -33,7 +33,7 @@ LROD
 1) Introduction
 ```
     LROD is a tool which aims to detect overlap regions among long reads..
-    The input long read data of FLRO is the long reads (fasta format).
+    The input long read data of LROD is the long reads (fasta format).
 ```
 2) Before installing and running
 ```
@@ -41,26 +41,31 @@ LROD
 ```
 3) Installing.
 ```
-    LROD should run on Linux operating sysetm with gcc. We test FLRO using gcc4.6.3 on Ubuntu.
-    Create a main directory (eg:FLRO). Copy all source code to this directory.
-	cd FLRO
+    LROD should run on Linux operating sysetm with gcc. We test LROD using gcc4.6.3 on Ubuntu.
+    Create a main directory (eg:LROD). Copy all source code to this directory.
+	cd LROD
 	make all
 ```
 4) Running.
 ```
     Step 1: Use DSK to crete the kmer frequency file.
+		./dsk <long-read-file>  13 -t 2  -o <kmer-frequency-fileName>
+		./parse_results ./kmer-frequency-fileName.solid_kmers_binary>  <kmer-frequency-file>
     Step 2: LROD -r <long-read-file> -c <kmer-frequency-file> -o result-file [options]
     	-r long-read-file: input file with fasta format;
 	-c kmer-frequency-file: each line in the kmer-frequency-file should be "kmer kmer-frequency";
 	-o result-file: result file;
 	-t count: thread count (default 1);
-	-k kmerLength: kmer length (default 13);
+	-k kmerLength: kmer length (default 15);
 	-q smallKmerLength: small kmer length (default 9);
+	-f minimumKmerFrequency: minimum kmer frequency (default 2);
+	-m maxKmerFrequencyRatio: maximum kmer frequency ratio (default 0.9);
 	-s kmerStep: kmer step (default 1);
 	-d distance: the small distance used for determining whether two common kmers are consistant (default 400);
 	-e distance: the large distance used for determining whether two common kmers are consistant (default 1500);
 	-a min-overlap-length: the minimum overlap length between two long reads (default 500);
 	-b length-ratio: the maximum length ratio between two aligned regions (default 0.3); 
+	-h -help  Show rules of use for LROD.
 	
     Note:
     	Each line in the kmer-frequency-file should be "kmer kmer-frequency". 
@@ -76,7 +81,7 @@ LROD
 	TCGGCCATATTAC 4
 	ATTATTGCAATAC 6
      An example of command line is shown below.
-	FLRO -r sra.fasta -c kmer-cout -o result.txt
+	LROD -r sra.fasta -c kmer-cout -o result.txt
 ```
 5) Output.
 ```
