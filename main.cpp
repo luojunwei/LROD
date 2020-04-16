@@ -36,7 +36,7 @@
 	 printf("\t-k kmerLength: kmer length (default 15)\n");
 	 printf("\t-q smallKmerLength: small kmer length (default 9)\n");
 	 printf("\t-f minimumKmerFrequency: minimum kmer frequency (default 2)\n");
-	 printf("\t-m maxKmerFrequencyRatio: maximum kmer frequency ratio (default 0.9)\n");
+	 printf("\t-m maxKmerFrequencyRatio: maximum kmer frequency ratio (it should be smaller than 1, by default 0.9)\n");
 	 printf("\t-s maximumStep: kmer step (default 1)\n");
 	 printf("\t-k kmerLength: kmer length (default 13)\n");
 	 printf("\t-d distance: the small distance used for determining whether two common kmers are consistant (default 400)\n");
@@ -97,30 +97,30 @@
      };  
      
   int ch = 0;
-  while ((ch = getopt_long(argc, argv, "c:r:o:m:n:d:k:e:a:s:t:f:q:b:h", long_options, NULL)) != -1) {
+  while((ch = getopt_long(argc, argv, "c:r:o:m:n:d:k:e:a:s:t:f:q:b:h", long_options, NULL)) != -1) {
         
-         switch (ch) {
-             case 'r': readFile = (char *)(optarg); break;
-			 case 'c': binaryKmerFile = (char *)(optarg); break;
-			 case 'o': outputKmerFile = (char *)optarg; break;
-			 case 'k': kmerLength = atoi(optarg); break;
-			 case 'q': smallKmerLength = atoi(optarg); break;
-			 case 'f': minimumKmerFrequency = atoi(optarg); break;
-			 case 'm': maxKmerFrequencyRatio = atof(optarg); break;
-			 case 's': step = atoi(optarg); break;
+        switch (ch) {
+            case 'r': readFile = (char *)(optarg); break;
+			case 'c': binaryKmerFile = (char *)(optarg); break;
+			case 'o': outputKmerFile = (char *)optarg; break;
+			case 'k': kmerLength = atoi(optarg); break;
+			case 'q': smallKmerLength = atoi(optarg); break;
+			case 'f': minimumKmerFrequency = atoi(optarg); break;
+			case 'm': maxKmerFrequencyRatio = atof(optarg); break;
+			case 's': step = atoi(optarg); break;
 			
-			 case 'd': smallIntervalDistance = atoi(optarg); break;
-			 case 'e': largeIntervalDistance = atoi(optarg); break;
-			 case 'a': overlapLengthCutOff = atoi(optarg); break;
-			 case 't': threadCount = atoi(optarg); break;
-			 case 'b': lengthRatio = atof(optarg); break;
-             case 'h':
-                 print_usage();
-                 return 0;
-             default:
-                 return -1;
-         }
-     }
+			case 'd': smallIntervalDistance = atoi(optarg); break;
+			case 'e': largeIntervalDistance = atoi(optarg); break;
+			case 'a': overlapLengthCutOff = atoi(optarg); break;
+			case 't': threadCount = atoi(optarg); break;
+			case 'b': lengthRatio = atof(optarg); break;
+            case 'h':
+                print_usage();
+                return 0;
+            default:
+                return -1;
+        }
+    }
     
 	 
 	
@@ -150,8 +150,8 @@
  
 	ReadSetHead * readSetHead = GetReadSetHead(readFile,StrLine,maxSize);
 	
-	if(readSetHead->readCount <=1){
-		printf("The number of read is smaller than one!\n");
+	if(readSetHead->readCount <= 1){
+		printf("The number of reads is smaller than one!\n");
         exit(0);
 	}
 	printf("Start to construct kmer hash table!\n");
