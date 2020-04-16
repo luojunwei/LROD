@@ -80,12 +80,12 @@ LROD
 	ATAAGTGATAGCT 4
 	TCGGCCATATTAC 4
 	ATTATTGCAATAC 6
-     An example of command line is shown below.
-	LROD -r sra.fasta -c kmer-cout -o result.txt
+     An example of command line is shown below. The output file is result.csv.
+	LROD -r sra.fasta -c kmer-cout -o result
 ```
 5) Output.
 ```
-    The output file "output-file-name" is the overlap result.
+    The output file "output-file-name.csv" is the overlap result.
     The first column is the first read number.
     The second column is the second read number.
     The third column is aligning orientation. 0 represents forward aligning. 1 represents reverse aligning.
