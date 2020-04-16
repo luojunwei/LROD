@@ -49,8 +49,8 @@ LROD
 4) Running.
 ```
     Step 1: Use DSK to crete the kmer frequency file.
-		./dsk <long-read-file>  13 -t 2  -o <kmer-frequency-fileName>
-		./parse_results ./kmer-frequency-fileName.solid_kmers_binary>  <kmer-frequency-file>
+        dsk -file <long-read-file.fa>  -kmer-size 15
+	dsk2ascii -file <long-read-file.h5> -out kmer-frequency-file.txt
     Step 2: LROD -r <long-read-file> -c <kmer-frequency-file> -o result-file [options]
     	-r long-read-file: input file with fasta format;
 	-c kmer-frequency-file: each line in the kmer-frequency-file should be "kmer kmer-frequency";
