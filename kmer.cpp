@@ -424,6 +424,10 @@ KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHe
 	float acc = 0;
 	long int max = 0;
 	
+	if(maxRatio > 1){
+		maxRatio = 1;
+	}
+	
 	for(long int i = 0; i < arrayCount; i++){
 		if(freArray[i] != 0){
 			acc = acc + (float)(freArray[i]*i)/allKmerFrequency;
@@ -440,6 +444,7 @@ KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHe
 	}
 	min = 2;
 	if(min > max){
+		
 		cout<<"minimumKmerFrequency is larger than maxKmerFrequencyRatio. Please check the input parameters!"<<endl;
 		exit(0);
 	}
