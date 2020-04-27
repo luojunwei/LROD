@@ -95,6 +95,8 @@ void ReAllocateCommonKmer(CommonKmerHead * commonKmerHead);
 
 void InsertCommonToTwoReadAligningHead(CommonKmerHead * commonKmerHead, KmerReadNodeHead * kmerReadNodeHead, KmerHashTableHead * kmerHashTableHead, long int hashIndex, unsigned long int readIndex, unsigned long  long int position, bool orien);
 
+int GetCommonKmerHeadAllThreadNew_UnitTest(char * result, long int readCount);
+
 CommonKmerHead * GetCommonKmerHead(KmerHashTableHead * kmerHashTableHead, KmerReadNodeHead * kmerReadNodeHead, ReadSetHead * readSetHead, long int kmerLength, char * readFile,  char * outputFile, unsigned long  long int step);
 
 void sort(CommonKmer * a, long int left, long int right);

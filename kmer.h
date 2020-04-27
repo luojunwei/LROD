@@ -23,13 +23,15 @@ typedef struct KmerHashNode{
 typedef struct KmerHashTableHead{
     KmerHashNode * kmerHashNode;
 	unsigned long int allocationCount;
+	long int min;
+	long int max;
 }KmerHashTableHead;
 
 typedef struct KmerReadNode{
     unsigned int kmer;
-	unsigned int readIndex;
-	unsigned int position;
-	bool orientation;
+	unsigned int readIndex; // Indicates the index containing the read of the kmer
+	unsigned int position;  //Indicates the position of the kmer in the read
+	bool orientation;  //Indicates the direction of the kmer in the read
 }KmerReadNode;
 
 typedef struct KmerReadNodeHead{
@@ -37,30 +39,34 @@ typedef struct KmerReadNodeHead{
 	long int realCount;
     long int allocationCount;
 	long int kmerLength;
-	long int startReadIndex;
+	long int startReadIndex;  
 	long int endReadIndex;
 }KmerReadNodeHead;
 
 
 char *  strup(char * str);
 
-void ReverseComplementKmer(char * kmer, long int kmerLength);
+void ReverseComplementKmer(char * kmer, long int kmerLength);   //Inverse complementary function of kmer
 
 unsigned int hash32shift(unsigned int key);
 
 unsigned int Hash(unsigned int kmer, unsigned int max);
-
-long int SearchKmerHashTable(KmerHashTableHead * kmerHashTableHead, unsigned int kmer);
+//This function is used to check whether a certain kmer exists in the kmer hash table
+long int SearchKmerHashTable(KmerHashTableHead * kmerHashTableHead, unsigned int kmer);  
 
 void sort(KmerReadNodeHead * a, long int left, long int right);
 
-bool DetectSameKmer(char * kmer, long int kmerLength);
+bool DetectSameKmer(char * kmer, long int kmerLength);  
 
 KmerReadNodeHead * InitKmerReadNodeHead(char * address, ReadSetHead * readSetHead, long int kmerLength, long int step, KmerHashTableHead * kmerHashTableHead, int frequencyCutOff);
 
 KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHead, long int kmerLength, long int step, long int min, float maxRatio);
 
+int GetKmerHashTableHead_UnitTest(KmerHashTableHead * kmerHashTableHead);
+
 KmerReadNodeHead * GetKmerReadNodeHeadSub(ReadSetHead * readSetHead, long int kmerLength, long int step, long int intervalCount);
+
+int GetKmerReadNodeHeadSub_UnitTest(KmerReadNodeHead * kmerReadNodeHead);
 
 void InitKmerReadNodeHeadSub(ReadSetHead * readSetHead, KmerReadNodeHead * kmerReadNodeHead, KmerHashTableHead * kmerHashTableHead, long int kmerLength, long int step, long int startReadIndex, long int endReadIndex);
 

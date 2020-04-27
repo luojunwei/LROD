@@ -15,7 +15,7 @@
 #include "read.h"
 
 using namespace std;
-
+//Reallocate space for CommonKmerHead
 void ReAllocateCommonKmer(CommonKmerHead * commonKmerHead){
 	unsigned long int maxCount = commonKmerHead->allocationCount*1.5;
 	CommonKmer * commonKmer = (CommonKmer *)malloc(sizeof(CommonKmer)*maxCount);
@@ -31,14 +31,13 @@ void ReAllocateCommonKmer(CommonKmerHead * commonKmerHead){
 	
 }
 
-
+//When two reads have the same kmer, store the position and direction of the kmer on the two reads to commonKmerHead
 void InsertCommonToTwoReadAligningHead(CommonKmerHead * commonKmerHead, KmerReadNodeHead * kmerReadNodeHead, KmerHashTableHead * kmerHashTableHead, long int hashIndex, unsigned long int readIndex, unsigned long  long int position, bool orien){
 	if(kmerHashTableHead->kmerHashNode[hashIndex].startPositionInArray == -1){
 		return;
 	}
 	unsigned long int i = kmerHashTableHead->kmerHashNode[hashIndex].startPositionInArray;
 	unsigned long int kmer = kmerHashTableHead->kmerHashNode[hashIndex].kmer - 1;
-
 
 	for(; i < kmerReadNodeHead->realCount; i++){
 		if(kmerReadNodeHead->kmerReadNode[i].kmer != kmer){
@@ -48,7 +47,6 @@ void InsertCommonToTwoReadAligningHead(CommonKmerHead * commonKmerHead, KmerRead
 			continue;
 		}
 		commonKmerHead->commonKmer[commonKmerHead->realCount].readIndex = kmerReadNodeHead->kmerReadNode[i].readIndex;
-		
 		commonKmerHead->commonKmer[commonKmerHead->realCount].rightPosition = kmerReadNodeHead->kmerReadNode[i].position;
 		commonKmerHead->commonKmer[commonKmerHead->realCount].leftPosition = position;
 		if(orien == kmerReadNodeHead->kmerReadNode[i].orientation){
@@ -61,6 +59,60 @@ void InsertCommonToTwoReadAligningHead(CommonKmerHead * commonKmerHead, KmerRead
 			ReAllocateCommonKmer(commonKmerHead);
 		}
 	}
+	
+}
+
+int GetCommonKmerHeadAllThreadNew_UnitTest(char * result, long int readCount){
+	FILE * fp = NULL;
+	if((fp = fopen(result,"r")) == NULL){
+        return 0;
+   	}
+	long int maxSize = 20000;
+	char * line = (char *)malloc(sizeof(char)*maxSize);
+	char * p =NULL;
+	const char * split = ",";
+	
+	while((fgets(line, maxSize, fp)) != NULL){ 
+
+		p = strtok(line,split);
+		if(atoi(p) < 0 || atoi(p) > readCount){
+			return 0;
+		}
+		
+		p = strtok(NULL,split);
+		if(atoi(p) < 0 || atoi(p) > readCount){
+			return 0;
+		}
+		p = strtok(NULL,split);
+		if(atoi(p) != 0 && atoi(p) != 1){
+			return 0;
+		}
+		
+		p = strtok(NULL,split);
+		if(atoi(p) < 0){
+			return 0;
+		}
+		
+		p = strtok(NULL,split);
+		if(atoi(p) < 0){
+			return 0;
+		}
+		
+		p = strtok(NULL,split);
+		if(atoi(p) < 0){
+			return 0;
+		}
+		
+		p = strtok(NULL,split);
+		if(atoi(p) < 0){
+			return 0;
+		}
+		
+	
+	}
+	
+	fclose(fp);
+	return 1;
 	
 }
 
@@ -93,7 +145,7 @@ CommonKmerHead * GetCommonKmerHeadAllThreadNew(KmerHashTableHead * kmerHashTable
 	}
 	
 }
-
+//Alignment function between sequences
 CommonKmerHead * GetCommonKmerHeadAllThread(KmerHashTableHead * kmerHashTableHead, KmerReadNodeHead * kmerReadNodeHead, ReadSetHead * readSetHead, long int kmerLength, char * readFile, char * outputFile, unsigned long  long int step, long int totalThreadNumber, long int smallKmerLength, long int smallIntervalDistance, long int largeIntervalDistance, long int overlapLengthCutOff, float lengthRatio, long int startReadIndex){
 	
 	pthread_t tid[totalThreadNumber];
@@ -106,7 +158,6 @@ CommonKmerHead * GetCommonKmerHeadAllThread(KmerHashTableHead * kmerHashTableHea
 	printf("The length of kmer is: %ld;\n",kmerLength);
 	printf("The length of smallkmer is: %ld;\n",smallKmerLength);
 	printf("The minimum overlap length of each pair reads is: %ld;\n",overlapLengthCutOff);
-	
 		
     for(i = 0; i< totalThreadNumber; i++){
         getCommonKmerHeadP[i].kmerHashTableHead = kmerHashTableHead;
@@ -128,7 +179,7 @@ CommonKmerHead * GetCommonKmerHeadAllThread(KmerHashTableHead * kmerHashTableHea
 		getCommonKmerHeadP[i].step = step;
         getCommonKmerHeadP[i].threadIndex = i;
         getCommonKmerHeadP[i].totalThreadNumber = totalThreadNumber;
-             
+        //Call multiple threads for sequence overlap detection
         if(pthread_create(&tid[i], NULL, GetCommonKmerHeadThread, (void *)&getCommonKmerHeadP[i])){
             cout<<"create thread wrong!"<<endl;
             exit(1);
@@ -193,7 +244,7 @@ void * GetCommonKmerHeadThread(void * arg){
 	long int overlapLengthCutOff = getCommonKmerHeadP->overlapLengthCutOff;
 	long int startReadIndex = getCommonKmerHeadP->startReadIndex;
 
-	AdjGraphHead * G = (AdjGraphHead *)malloc(sizeof(AdjGraphHead));
+	AdjGraphHead * G = (AdjGraphHead *)malloc(sizeof(AdjGraphHead));  
 	G->allocationCountGraph = 20000;
 	G->graph = (AdjGraph*)malloc(sizeof(AdjGraph)* G->allocationCountGraph);
 	G->realCountGraph = 0;
@@ -234,7 +285,6 @@ void * GetCommonKmerHeadThread(void * arg){
 	commonKmerHead->allocationCount = maxCount;
 	
 	
-	
 	AdjGraphHead * localG = (AdjGraphHead *)malloc(sizeof(AdjGraphHead));
 	localG->largestIntervalDistance = largeIntervalDistance;
 	localG->allocationCountGraph = 2*largeIntervalDistance;
@@ -254,8 +304,7 @@ void * GetCommonKmerHeadThread(void * arg){
 	localCommonKmerHead->commonKmer = (CommonKmer *)malloc(sizeof(CommonKmer)*localCommonKmerHead->allocationCount*2);
 	localCommonKmerHead->realCount = 0;
 	
-	
-	
+
 	unsigned long int kmerInteger = 0;
 	long int hashIndex;
 	unsigned long int readIndex = 0;
@@ -296,7 +345,7 @@ void * GetCommonKmerHeadThread(void * arg){
 			strncpy(kmer1,readSetHead->readSet[i].read + j, kmerLength);
 			kmer1[kmerLength] = '\0';
 			
-			if(DetectSameKmer(kmer1, kmerLength) != true){
+			if(DetectSameKmer(kmer1, kmerLength) != true){ // Delete kmer that contains only one kind of base
 				continue;
 			}
 			
@@ -311,7 +360,6 @@ void * GetCommonKmerHeadThread(void * arg){
 					InsertCommonToTwoReadAligningHead(commonKmerHead, kmerReadNodeHead, kmerHashTableHead, hashIndex, readIndex, j, 0);
 			}	
 		}
-		
 		RemoveLowNumberKmer(commonKmerHead, forwardKmerCount, reverseKmerCount, readSetHead->readCount);
 
 		if(commonKmerHead->realCount > 100000){
@@ -334,7 +382,7 @@ void * GetCommonKmerHeadThread(void * arg){
 	
 }
 
-
+//If some of the same kmer positions of the two reads are close, remove part of the kmers to reduce memory
 void SubRemoveMultipleSameKmer(CommonKmerHead * commonKmerHead, long int startIndex, long int endIndex){
 	bool token = false;
 	bool token1 = false;
@@ -371,7 +419,6 @@ void RemoveMultipleSameKmer(CommonKmerHead * commonKmerHead){
 		
 		if(commonKmerHead->commonKmer[i].readIndex != readIndex){
 			endIndex = i - 1;
-			
 			SubRemoveMultipleSameKmer(commonKmerHead, startIndex, endIndex);
 			
 			startIndex = i;
@@ -399,14 +446,12 @@ void RemoveMultipleSameKmer(CommonKmerHead * commonKmerHead){
 }
 
 
-
+//If the number of the same kmer for a pair of reads is relatively small, the possibility of overlap is excluded
 void RemoveLowNumberKmer(CommonKmerHead * commonKmerHead, long int * forwardKmerCount, long int * reverseKmerCount, long int readCount){
 	
 	for(long int i = 0; i < readCount; i++){
 		forwardKmerCount[i] = 0;
 		reverseKmerCount[i] = 0;
-		
-		
 	}
 	for(long int i = 0; i < commonKmerHead->realCount; i++){
 		if(commonKmerHead->commonKmer[i].orientation == 0){
@@ -446,7 +491,6 @@ void RemoveLowNumberKmer(CommonKmerHead * commonKmerHead, long int * forwardKmer
 			commonKmerHead->commonKmer[i - shiftCount].readIndex = commonKmerHead->commonKmer[i].readIndex;
 		}
 	}
-	
 	commonKmerHead->realCount = commonKmerHead->realCount - shiftCount;
 }
 
@@ -524,7 +568,7 @@ void downToMaxHeap(CommonKmer *a, long int bgn, long int end){
     }
 }
 
-void buildMaxHeap(CommonKmer *a, long int bgn, long int end){
+void buildMaxHeap(CommonKmer * a, long int bgn, long int end){
     if (bgn >= end - 1)
         return;
 
@@ -546,7 +590,7 @@ void heapSort(CommonKmer *a, long int bgn, long int end){
     }
 }
 
-
+//Sort the kmer positions on the same read in ascending order
 void sort(CommonKmer *a, long int left, long int right)
 {
 
@@ -585,7 +629,6 @@ void sort(CommonKmer *a, long int left, long int right)
 			a[j].orientation = a[i].orientation;
 			j--;
 		}
-  
     }
 
     a[i].readIndex = key;
@@ -603,7 +646,8 @@ void DestroyGraph(AdjGraphHead * G){
 	G->realCountArc = 0;
 }
 
-
+//According to the graph of the local area, determine whether the interval between the small kmers meets the consistency condition. 
+//If it meets, it returns 1; if it does not, it returns 0.
 long int Overlap_DisplayLocalRegion(AdjGraphHead * G,long int leftLen,long int rightLen){
 	if(G->realCountArc <= 0){
 		return 0;
@@ -624,12 +668,9 @@ long int Overlap_DisplayLocalRegion(AdjGraphHead * G,long int leftLen,long int r
 	}else{
 		return 1;
 	}
-	
-	
-
 }
 
-
+//According to the graph path, get the final overlap detection result
 long int Overlap_Display_Graph(AdjGraphHead * G, long int leftIndex,long int rightIndex,bool orien,long int leftLen,long int rightLen,FILE * fp, long int leftStartpos, long int leftEndpos, long int rightStartpos, long int rightEndpos, AdjGraphHead * localG, CommonKmerHead * localCommonKmerHead, char * leftRead, char * rightRead){
 	if(leftIndex == rightIndex){
 		return 0;
@@ -649,7 +690,7 @@ long int Overlap_Display_Graph(AdjGraphHead * G, long int leftIndex,long int rig
 	
 	MinOverLen = min(leftEndpos -leftStartpos,rightEndpos - rightStartpos);
 	MaxOverLen = max(leftEndpos -leftStartpos,rightEndpos - rightStartpos);
-
+	//The minimum alignment length is greater than 300
 	if(MinOverLen < 300){return 0;} 
 	if((float)(MaxOverLen - MinOverLen)/MaxOverLen > G->lengthRatio ){return 0;} 
 
@@ -665,15 +706,18 @@ long int Overlap_Display_Graph(AdjGraphHead * G, long int leftIndex,long int rig
 	
 	long int alignLen = 30;
 	float alignRtio = 0.6;
-
+	/* Regardless of whether the two readings R1 and R2 are forward aligned and reverse aligned, there are four alignment situations.
+	The head of R1 is aligned to the tail of R2, the tail of R1 is aligned to the head of R2, R1 contains R2 and R2 contains R1.
+	*/
+//Case of positive alignment;
 	if(orien==0){
+		//The length of the aligned position area on the two kmers should not be too large
 		if((rightStartpos > leftStartpos && leftStartpos > maxIntervalDistance) || (rightStartpos <= leftStartpos && rightStartpos > maxIntervalDistance)){ 
 			return 0;
 		}
 		if((leftLen-leftEndpos > rightLen-rightEndpos && rightLen-rightEndpos > maxIntervalDistance) || (leftLen-leftEndpos <= rightLen-rightEndpos && leftLen-leftEndpos > maxIntervalDistance)){ 
 			return 0;
 		}
-		
 		if(rightStartpos > leftStartpos){
 			if(leftStartpos > maxIntervalDistance){
 				return 0;
@@ -682,7 +726,7 @@ long int Overlap_Display_Graph(AdjGraphHead * G, long int leftIndex,long int rig
 				localLeftEnd = leftStartpos - 1;
 				localRightStart = rightStartpos - leftStartpos;
 				localRightEnd = rightStartpos - 1;
-				
+				//If the distance between two kmers is less than maxIntervalDistance, but greater than t, then use a shorter kmer to further determine whether the two kmers are consistent kmer
 				long int ss = GetCommonShorterKmer(localG, localCommonKmerHead, leftRead, rightRead, localLeftStart, localLeftEnd, localRightStart, localRightEnd, G->smallKmerLength, 0);
 				
 				if(ss < alignRtio){
@@ -693,6 +737,7 @@ long int Overlap_Display_Graph(AdjGraphHead * G, long int leftIndex,long int rig
 			rightStartpos = rightStartpos - leftStartpos;
 			leftStartpos = 1;
 		}else{
+			
 			if(rightStartpos > maxIntervalDistance){
 				return 0;
 			}else if(rightStartpos > t){
@@ -752,7 +797,7 @@ long int Overlap_Display_Graph(AdjGraphHead * G, long int leftIndex,long int rig
 		}
 		
 	}
-
+//Reverse alignment
 	if(orien==1){
 		
 		if((rightLen-rightEndpos > leftStartpos && leftStartpos > maxIntervalDistance) || (rightLen-rightEndpos <= leftStartpos && rightLen-rightEndpos > maxIntervalDistance)){
@@ -857,7 +902,7 @@ long int Overlap_Display_Graph(AdjGraphHead * G, long int leftIndex,long int rig
 
 	if(MaxOverLen<G->overlapLengthCutOff){ return 0;}
 	if((float)(MaxOverLen - MinOverLen)/MaxOverLen > G->lengthRatio ){ return 0;} 
-	
+	//Output alignment results to file
 	if(leftIndex > rightIndex){	
 		fprintf(fp,"%ld,%ld,%d,%ld,%ld,%ld,%ld,%ld,%ld\n",leftIndex,rightIndex,orien,
 												leftStartpos,leftEndpos,leftLen,rightStartpos,rightEndpos,rightLen);
@@ -915,7 +960,7 @@ void ReAllocateArcIndex(AdjGraphHead * G){
 	G->arcIndex = arcIndex;
 }
 
-
+//With the common kmer as the vertex, add edges to the common consistent kmer.
 long int AddEdgeInGraph(AdjGraphHead * G, bool orientation, long int leftIndex , long int rightIndex, long int largestIntervalDistance, long int maxIntervalDistance, AdjGraphHead * localG, CommonKmerHead * localCommonKmerHead, char * leftRead, char * rightRead){
 	AdjGraph * graph = NULL;
 	if(orientation == 0){
@@ -1111,7 +1156,7 @@ long int CreatGraphSinglePath(AdjGraphHead * G, CommonKmer * commonKmer, unsigne
 	
 }
 
-
+//Constructing graphs of small kmers for local sequences
 long int CreatGraphLocalRegion(AdjGraphHead * G, long int distance) {
 	long int count,throld;
 	unsigned long  long int i,j,k,m,n;
@@ -1186,7 +1231,6 @@ void GetOverlapResult(AdjGraphHead * G, CommonKmerHead * commonKmerHead, ReadSet
 	for(long int m = 0; m < commonKmerHead->realCount; m++){
 		if(commonKmerHead->commonKmer[m].readIndex != readIndex){
 			endIndex = m - 1;
-			
 			leftIndex = commonKmerHead->readIndex;
 			rightIndex = readIndex;
 			
@@ -1282,10 +1326,8 @@ void GetOverlapResult(AdjGraphHead * G, CommonKmerHead * commonKmerHead, ReadSet
 	
 		G->realCountGraph = 0;
 		G->realCountArc = 0;
-		G->reverseRealCountGraph = 0;
-		
+		G->reverseRealCountGraph = 0;	
 	}
-	
 }
 
 
@@ -1311,11 +1353,11 @@ void DetectCommon(CommonKmerHead * commonKmerHead, long int position, char * kme
 		}
 	}
 }
-
+//When the distance between the two common kmers k1 and k2 is too large, the sequence between the two kmers is further compared with a smaller kmer. 
+//If there are multiple small kmers with the same direction and adjacent positions, the k1 and k1 k2 belongs to the same consistent kmer.
 long int GetCommonShorterKmer(AdjGraphHead * G, CommonKmerHead * commonKmerHead, char * leftRead, char * rightRead, long int leftStartPosition, long int leftEndPosition, long int rightStartPosition, long int rightEndPosition, long int kmerLength, bool orientation)
 {
-	
-	
+
 	leftStartPosition = leftStartPosition + kmerLength;
 	rightStartPosition = rightStartPosition + kmerLength;
 	commonKmerHead->realCount = 1;
@@ -1336,8 +1378,6 @@ long int GetCommonShorterKmer(AdjGraphHead * G, CommonKmerHead * commonKmerHead,
 
 	char * tempLeftRead = G->localLeftRead;
 	char * tempRightRead = G->localRightRead;
-	
-	
 	
 	if(orientation == 1){		
 		ReverseComplementKmer(tempRightRead, tempRightReadLength);
@@ -1380,7 +1420,6 @@ long int GetCommonShorterKmer(AdjGraphHead * G, CommonKmerHead * commonKmerHead,
 	long int result = Overlap_DisplayLocalRegion(G,tempLeftReadLength,tempRightReadLength);
 	
 	return result;
-
 }
 
 

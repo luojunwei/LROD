@@ -74,7 +74,7 @@ void ReverseComplementKmer(char * kmer, long int kmerLength){
 	}
 }
 
-
+//Determine whether a kmer exists in the kmer hash table, if it exists, return the hash value, otherwise return -1
 long int SearchKmerHashTable(KmerHashTableHead * kmerHashTableHead, unsigned int kmer){
 
 	long int hashIndex = Hash(kmer, kmerHashTableHead->allocationCount);
@@ -127,8 +127,7 @@ void sort(KmerReadNode * a, long int left, long int right)
 			a[j].position = a[i].position;
 			a[j].orientation = a[i].orientation;
 			j--;
-		}
-         
+		} 
     }
      
     a[i].kmer = key;
@@ -375,7 +374,7 @@ KmerReadNodeHead * InitKmerReadNodeHead(char * address, ReadSetHead * readSetHea
 	
 	return kmerReadNodeHead;
 }
-
+//According to the frequency of kmer, extract useful kmer and store it in the hash table
 KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHead, long int kmerLength, long int step, long int min, float maxRatio){
 	KmerHashTableHead * kmerHashTableHead = (KmerHashTableHead *)malloc(sizeof(KmerHashTableHead));
 	FILE * fp; 
@@ -413,9 +412,9 @@ KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHe
 		if(frequency > arrayCount - 10){
 			continue;
 		}
-		freArray[frequency]++;
-		kmerCount++;
-		allKmerFrequency = allKmerFrequency + frequency;
+		freArray[frequency]++; //The number of kmer at different frequencies
+		kmerCount++;  // The number of kmer types
+		allKmerFrequency = allKmerFrequency + frequency;  //The sum of the frequency of different types of kmer
 	}
 	
 	printf("The number of kmer types: %ld;\n",kmerCount);
@@ -432,7 +431,7 @@ KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHe
 		if(freArray[i] != 0){
 			acc = acc + (float)(freArray[i]*i)/allKmerFrequency;
 			if(acc > maxRatio && max == 0){
-				max = i;
+				max = i;  //Get the maximum frequency value
 				break;
 			}
 		}
@@ -460,6 +459,7 @@ KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHe
         printf("%s, does not exist!", address);
         exit(0);
     }
+	//Get the number of available kmer types
 	while((fgets(line, maxSize, fp)) != NULL){
 		strncpy(kmer, line, kmerLength);
 		kmer[kmerLength]='\0';
@@ -482,7 +482,9 @@ KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHe
 	}
 	
 	printf("There are %ld kmer for overlap detection;\n",kmerCount);
-	
+	if(kmerCount <= 0){
+		exit(0);
+	}
 	fclose(fp);
 	
 	kmerHashTableHead->allocationCount = kmerCount*2;
@@ -499,7 +501,7 @@ KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHe
     }
 	
 	unsigned long int kmerInteger = 0;
-
+//Convert kmer with a frequency between max and min into bytes and store it in a hash table
 	while((fgets(line, maxSize, fp)) != NULL){
 
 		strncpy(kmer, line, kmerLength);
@@ -517,10 +519,8 @@ KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHe
 		if(!(frequency <= max && frequency >= min)){
 			continue;
 		}
-		//cout<<line<<endl;
-		
+	 
 		SetBitKmer(&kmerInteger, kmerLength, kmer);
-		//cout<<kmerInteger<<endl;
 		hashIndex = Hash(kmerInteger, kmerHashTableHead->allocationCount);
 		while(true){
 			if(kmerHashTableHead->kmerHashNode[hashIndex].kmer == 0){
@@ -536,16 +536,29 @@ KmerHashTableHead * GetKmerHashTableHead(char * address, ReadSetHead * readSetHe
 	free(line);
 	free(kmer);
 	free(kmerC);
-
+	kmerHashTableHead->min = min;
+	kmerHashTableHead->max = max;
 	
 	return kmerHashTableHead;
 }
 
-
+int GetKmerHashTableHead_UnitTest(KmerHashTableHead * kmerHashTableHead){
+	long int kmerCount = 0;
+	for(unsigned long int i = 0; i < kmerHashTableHead->allocationCount; i++){
+		if(kmerHashTableHead->kmerHashNode[i].kmer < 0){
+			return 0;
+		}else if(kmerHashTableHead->kmerHashNode[i].kmer > 0){
+			kmerCount++;
+		}  
+	}
+	if(kmerCount <= 0){
+		return 0;
+	}
+	return 1;
+}
 
 
 KmerReadNodeHead * GetKmerReadNodeHeadSub(ReadSetHead * readSetHead, long int kmerLength, long int step, long int intervalCount){
-	
 	
 	long int max = 0;
 	long int allKmerFrequency = 0;
@@ -583,10 +596,12 @@ KmerReadNodeHead * GetKmerReadNodeHeadSub(ReadSetHead * readSetHead, long int km
 	return kmerReadNodeHead;
 }
 
+//Initialize the kmer hash table node data
 void InitKmerReadNodeHeadSub(ReadSetHead * readSetHead, KmerReadNodeHead * kmerReadNodeHead, KmerHashTableHead * kmerHashTableHead, long int kmerLength, long int step, long int startReadIndex, long int endReadIndex){
 	kmerReadNodeHead->realCount = 0;
+	
 	for(unsigned long int i = 0; i < kmerHashTableHead->allocationCount; i++){
-		kmerHashTableHead->kmerHashNode[i].startPositionInArray = -1;
+		kmerHashTableHead->kmerHashNode[i].startPositionInArray = -1;  
 	}
 	
 	for(long int i = 0; i < kmerReadNodeHead->allocationCount; i++){
@@ -599,7 +614,7 @@ void InitKmerReadNodeHeadSub(ReadSetHead * readSetHead, KmerReadNodeHead * kmerR
 	
 	long int hashIndex = 0;
 	unsigned long int kmerInteger = 0;
-	
+	//Extract available kmer in reads
 	for(long int i = startReadIndex; i <= endReadIndex; i++){
 		readLength = readSetHead->readSet[i].readLength;
 		for(int j = 0; j < readLength - kmerLength + 1-step ; j = j+step){
@@ -615,8 +630,9 @@ void InitKmerReadNodeHeadSub(ReadSetHead * readSetHead, KmerReadNodeHead * kmerR
 				kmerReadNodeHead->kmerReadNode[kmerReadNodeHead->realCount].position= j; 
 				kmerReadNodeHead->kmerReadNode[kmerReadNodeHead->realCount].orientation = true;
 				kmerReadNodeHead->realCount++;
+				
 			}else{
-				ReverseComplementKmer(kmer1, kmerLength);
+				ReverseComplementKmer(kmer1, kmerLength);  //Reverse complementary kmer, and then check whether it exists
 				SetBitKmer(&kmerInteger, kmerLength, kmer1);
 				hashIndex = SearchKmerHashTable(kmerHashTableHead, kmerInteger);
 				if(hashIndex!=-1){
@@ -627,13 +643,12 @@ void InitKmerReadNodeHeadSub(ReadSetHead * readSetHead, KmerReadNodeHead * kmerR
 					kmerReadNodeHead->realCount++;
 				}
 			}
-			
 		}	
 	}
-	
-	sort(kmerReadNodeHead->kmerReadNode, 0, kmerReadNodeHead->realCount - 1);
+	sort(kmerReadNodeHead->kmerReadNode, 0, kmerReadNodeHead->realCount - 1);//
 
 	kmerInteger = kmerReadNodeHead->kmerReadNode[0].kmer + 1;
+	//
 	for(long int i = 0; i < kmerReadNodeHead->realCount; i++){
 		if(kmerReadNodeHead->kmerReadNode[i].kmer != kmerInteger){
 			kmerInteger = kmerReadNodeHead->kmerReadNode[i].kmer;
@@ -645,7 +660,21 @@ void InitKmerReadNodeHeadSub(ReadSetHead * readSetHead, KmerReadNodeHead * kmerR
 	kmerReadNodeHead->kmerLength = kmerLength;
 	kmerReadNodeHead->startReadIndex = startReadIndex;
 	kmerReadNodeHead->endReadIndex = endReadIndex;
-	
+}
+
+int GetKmerReadNodeHeadSub_UnitTest(KmerReadNodeHead * kmerReadNodeHead){
+	if(kmerReadNodeHead->realCount <= 0){
+		cout<<kmerReadNodeHead->realCount<<endl;
+		return 0;
+	}
+	for(long int i = 0; i < kmerReadNodeHead->realCount - 1; i++){
+		cout<<kmerReadNodeHead->kmerReadNode[i].kmer<<endl;
+		cout<<kmerReadNodeHead->kmerReadNode[i + 1].kmer<<endl;
+		if(kmerReadNodeHead->kmerReadNode[i].kmer < kmerReadNodeHead->kmerReadNode[i + 1].kmer){
+			return 0;
+		}
+	}
+	return 1;
 }
 
 
