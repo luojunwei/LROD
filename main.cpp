@@ -48,9 +48,9 @@
  
  int main(int argc, char* argv[])
  {
-    if(argc < 2){
+    if(argc < 4){
 		print_usage();
-		exit(0);
+		return 1;
 	}
 	long int maxSize = 1000000;
 	char * StrLine = (char *)malloc(sizeof(char)*maxSize);
@@ -63,17 +63,17 @@
 	FILE * fp4;
 	strcpy(outputKmerFile, "output");
 	
-	long int step = 1;
-	long int kmerLength = 15;
-	long int smallKmerLength = 9;
-	long int threadCount = 1;
+	long int step = 1;  //Step length when extracting kmer from reads
+	long int kmerLength = 15;  //Extract the length of kmer from the reads
+	long int smallKmerLength = 9;  //Kmer length in the second stage of detection
+	long int threadCount = 1;  //Number of threads
 	
 	long int smallIntervalDistance = 400;
 	long int largeIntervalDistance = 1500;
 	long int overlapLengthCutOff = 500;
 	float lengthRatio = 0.3;
 	int frequencyCutOff = 3;
-	long int minimumKmerFrequency = 2;
+	long int minimumKmerFrequency = 2;  
 	float maxKmerFrequencyRatio = 0.9;
     
  
@@ -126,42 +126,53 @@
 	
 	if((fp4 = fopen(readFile, "r")) == NULL){
 		printf("Missing long read file!\n");
-		printf("\nFor detailed usage of LROD, please command: -h or -help!\n");
-        exit(0);
+		printf("For detailed usage of LROD, please command: -h or -help!\n");
+        return 2;
     }
 	fclose(fp4);
 	
 	if((fp4 = fopen(binaryKmerFile, "r")) == NULL){
 		printf("Missing kmer frequency file!\n");
-		printf("\nFor detailed usage of LROD, please command: -h or -help!\n");
-		exit(0);
+		printf("For detailed usage of LROD, please command: -h or -help!\n");
+		return 3;
     }
 	fclose(fp4);
 	
 	strcat(outputKmerFile, ".csv");
 	if((fp4 = fopen(outputKmerFile, "w")) == NULL){
         printf("%s, does not exist!\n", outputKmerFile);
-        exit(0);
+        return 5;
     }
 	fclose(fp4);
 	
     
 	printf("\nStart to load long reads!\n");
- 
+	//Store long reads in an array
 	ReadSetHead * readSetHead = GetReadSetHead(readFile,StrLine,maxSize);
 	
 	if(readSetHead->readCount <= 1){
 		printf("The number of reads is smaller than one!\n");
-        exit(0);
+        return 6;
 	}
 	printf("Start to construct kmer hash table!\n");
+	
 	KmerHashTableHead * kmerHashTableHead = GetKmerHashTableHead(binaryKmerFile, readSetHead, kmerLength, step, minimumKmerFrequency, maxKmerFrequencyRatio);
+	if(GetKmerHashTableHead_UnitTest(kmerHashTableHead) == 0){
+		return 7;
+	}
+	
 	
 	long int subReadCount = 50000;
+	//Create a kmer hash table space based on the reads length
 	KmerReadNodeHead * kmerReadNodeHead = GetKmerReadNodeHeadSub(readSetHead, kmerLength, step, subReadCount);
 	
 	printf("Prepare to detect overlap among long reads!\n");
+	//Start multi-thread sequence alignment
 	GetCommonKmerHeadAllThreadNew(kmerHashTableHead, kmerReadNodeHead, readSetHead, kmerLength, readFile, outputKmerFile, step, threadCount, smallKmerLength, smallIntervalDistance, largeIntervalDistance, overlapLengthCutOff, lengthRatio, subReadCount);
+	
+	if(GetCommonKmerHeadAllThreadNew_UnitTest(outputKmerFile, readSetHead->readCount) == 0){
+		return 8;
+	}
 	
 	printf("done!\n");
 	printf("Result file name is: %s!\n",outputKmerFile);
